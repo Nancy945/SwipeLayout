@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"--><!--android:layout_width="match_parent"--><!--android:layout_height="match_parent"--><!--android:orientation="vertical">-->
+
+<!--todo 如果把外侧的LinearLayout去掉，ListView就无法显示--><!--todo 如果不去掉外侧的LinearLayout，且com.example.nancy.swipelayout.view.SwipeLayout的高度设置为wrap_content，ListView也无法显示-->
+
+<com.example.nancy.swipelayout.view.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- todo 此处的宽度不能写wrap_content 否则，listView中将会无法正常显示。原因猜测：
+    todo 是这个控件的高度无法计算。虽然子控件的高度都确定了是80。但是他实际的高度未必是80（可能会是竖着摆放的，或者有间距的竖着摆放。等等。这都取决与时时）但是listView在View.inflate这个xml的时候，无法正常获得原因-->
+
+    <!--大致解决了问题，重写了onMeasure方法，让他-->
+
+    <!--内容区域-->
+    <include layout="@layout/content" />
+
+    <!--删除区域-->
+    <include layout="@layout/delete" />
+
+</com.example.nancy.swipelayout.view.SwipeLayout>
+
+    <!--</LinearLayout>-->
