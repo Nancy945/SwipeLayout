@@ -28,15 +28,33 @@ public class SwipeLayout extends ViewGroup {
         super(context, attrs);
 
         mDragHelper = ViewDragHelper.create(this, new ViewDragHelper.Callback() {
+                    /**
+                     *  是否捕获touch事件
+                     * @param child 被触摸的View
+                     * @param pointerId 第二个是touch的ID
+                     * @return true则捕获该事件
+                     */
                     @Override
                     public boolean tryCaptureView(View child, int pointerId) {
+
                         //如果点击的是这两个就捕获
                         return child == mContentView || child == mDeleteView;
                     }
 
 
+                    /**
+                     *    水平移动的回调（垂直同理）
+                     * @param child   触摸的View
+                     * @param left child  ！！将要！！移动到的左侧坐标
+                     * @param dx 移动增量，相对上一次move（不是第一次的down）右边为正
+                     * @return 返回移动到的位置
+                     */
                     @Override
                     public int clampViewPositionHorizontal(View child, int left, int dx) {
+                        //todo 关键所在：在水平移动的时候禁止父控件拦截事件，此处的含义是，当移动侧滑删除空间的时候，ListView不能
+                        //todo 响应上下滑动事件。不加这条的话，基本无法拉出侧滑，原因是侧滑的时候很容易有垂直分量上的移动，
+                        //todo 从而导致ListView抢先拦截事件，进而导致侧滑删除失败(ListView是父控件，所以优先响应拦截事件)
+                        if (dx != 0) requestDisallowInterceptTouchEvent(true);
 
                         //防止越界
                         //如果点击了内容
@@ -60,6 +78,14 @@ public class SwipeLayout extends ViewGroup {
 
                     }
 
+                    /**
+                     * 位置改变时回调
+                     * @param changedView 哪个View移动了
+                     * @param left 移动后的left值
+                     * @param top  移动后的top值
+                     * @param dx   相对上次的水平移动增量
+                     * @param dy   相对上次的垂直移动增量
+                     */
                     @Override
                     public void onViewPositionChanged(View changedView, int left, int top, int dx, int dy) {
                         if (changedView == mContentView) {
@@ -68,12 +94,17 @@ public class SwipeLayout extends ViewGroup {
                             mDeleteView.layout(l, 0, l + mDeleteWidth, mDeleteView.getMeasuredHeight());
 
                         } else {
-
                             //如果mDeleteView  让mContentView也一起移动
                             mContentView.layout(left - mContentView.getMeasuredWidth(), 0, left, mContentView.getMeasuredHeight());
                         }
                     }
 
+                    /**
+                     * 松开手(up事件)时回调
+                     * @param releasedChild 被松开的View
+                     * @param xvel x速率速率
+                     * @param yvel y速率
+                     */
                     @Override
                     public void onViewReleased(View releasedChild, float xvel, float yvel) {
                         float x = mContentView.getX();
@@ -82,6 +113,7 @@ public class SwipeLayout extends ViewGroup {
                             //如果deleteView露出超过一半 显示deleteView
 //                            mContentView.layout(-mDeleteWidth, 0, -mDeleteWidth + mContentView.getMeasuredWidth(), mContentView.getMeasuredHeight());
 
+//                         todo  数据模拟，没有实际效果。内部还是封装的Scroller，所以还是需要重写computeScroll方法
                             mDragHelper.smoothSlideViewTo(mContentView, -mDeleteWidth, 0);
 //
 //                            mDeleteView.layout(mContentView.getMeasuredWidth() - mDeleteWidth, 0,
@@ -106,11 +138,10 @@ public class SwipeLayout extends ViewGroup {
 //                        ViewCompat.postInvalidateOnAnimation(SwipeLayout.this);
 //                        invalidate();//刷新:draw-->onDraw-->computeScroll
 
-                        //todo 这里不能用invalidate 因为这里不是UI线程。
-                        //todo postInvalidate();和ViewCompat.postInvalidateOnAnimation(SwipeLayout.this);都可以
 
-                        postInvalidate();//这句不调用就无法启动刷新
-
+                        //todo invalidate() ,postInvalidate();和ViewCompat.postInvalidateOnAnimation(SwipeLayout.this);都可以
+                        //这里是Main线程
+                        invalidate();     //这句不调用就无法启动刷新
                     }
                 }
 
@@ -121,7 +152,7 @@ public class SwipeLayout extends ViewGroup {
     public void computeScroll() {
         if (mDragHelper.continueSettling(true)) {
             ViewCompat.postInvalidateOnAnimation(SwipeLayout.this);
-//            postInvalidate();
+//            invalidate(); 下面这个条不行，不会继续移动！
 
         }
     }
@@ -192,7 +223,6 @@ public class SwipeLayout extends ViewGroup {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
         //给孩子布局
-
 
         mContentView.layout(0, 0, mContentView.getMeasuredWidth(), mContentView.getMeasuredHeight());
 
