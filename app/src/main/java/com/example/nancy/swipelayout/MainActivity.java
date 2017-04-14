@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.nancy.swipelayout.view.SwipeLayout;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,11 +82,16 @@ public class MainActivity extends AppCompatActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
 
+            ((SwipeLayout)convertView).close();//todo 删除的情况下默认会复用前一个，所以假如没有这句话
+            //todo 删除了之后，下一个还是会处于已经侧滑出删除的状态！
+
             holder.tv_delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    System.out.println("delete:"+v);
                     mDatas.remove(position);
                     notifyDataSetChanged();
+
                 }
             });
 

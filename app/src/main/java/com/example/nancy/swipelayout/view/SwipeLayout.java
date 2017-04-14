@@ -108,7 +108,7 @@ public class SwipeLayout extends ViewGroup {
                     @Override
                     public void onViewReleased(View releasedChild, float xvel, float yvel) {
                         float x = mContentView.getX();
-
+                        System.out.println("SwipeLayout.onViewReleased");
                         if (x < -mDeleteWidth / 2) {
                             //如果deleteView露出超过一半 显示deleteView
 //                            mContentView.layout(-mDeleteWidth, 0, -mDeleteWidth + mContentView.getMeasuredWidth(), mContentView.getMeasuredHeight());
@@ -134,6 +134,7 @@ public class SwipeLayout extends ViewGroup {
 
 
                         }
+
 
 //                        ViewCompat.postInvalidateOnAnimation(SwipeLayout.this);
 //                        invalidate();//刷新:draw-->onDraw-->computeScroll
@@ -223,13 +224,22 @@ public class SwipeLayout extends ViewGroup {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
 
         //给孩子布局
-
+        System.out.println("SwipeLayout.onLayout");
         mContentView.layout(0, 0, mContentView.getMeasuredWidth(), mContentView.getMeasuredHeight());
 
 
         mDeleteView.layout(mContentView.getMeasuredWidth(), 0,
                 mContentView.getMeasuredWidth() + mDeleteView.getMeasuredWidth(), mDeleteView.getMeasuredHeight());
 
+
+    }
+
+    public void close(){
+        mContentView.layout(0, 0, mContentView.getMeasuredWidth(), mContentView.getMeasuredHeight());
+
+
+        mDeleteView.layout(mContentView.getMeasuredWidth(), 0,
+                mContentView.getMeasuredWidth() + mDeleteView.getMeasuredWidth(), mDeleteView.getMeasuredHeight());
 
     }
 
